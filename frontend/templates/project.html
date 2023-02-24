@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>OpenSchematicViewer</title>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/helper/base64_binary.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/helper/ole.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/helper/helper_extensions.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/helper/u8stream.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/schdoc_parser.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='movement.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='altium_js/vector_renderer.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='svg.js/svg.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <header>
+        <div class="inner-header flex">
+            <div class="flex">
+                <button>←</button>
+                <h1>{{ name }}</h1>
+            </div>
+            <div class="two-button flex">
+                <div>SCH</div>
+                <div>BOM</div>
+            </div>
+        </div>
+    </header>
+    <content>
+        <nav>
+            <div class="nav">
+                <ul>
+                    <p>Variants</p>
+                    {% for v in variants %}
+                        <li class="{{'selected' if loop.index0 == selected_variant }}">░  {{ v }}</li>
+                    {% endfor %}
+                </ul>
+                <ul>
+                    <p>Schematics</p>
+                    {% for sch in schematics %}
+                        <li class="{{'selected' if loop.index0 == selected_schematic }}">
+                            <a href="#", onclick="getSchematic('{{sch.name}}')">
+                                ▩  {{ sch.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+        <main id="main-area" />
+    </content>
+	<script type="text/javascript">
+        document.onkeydown = function(e) {
+            switch(e.which) {
+                case 38: // up
+                next = {{ selected_schematic }} - 1
+                if (next < 0)
+                    break
+                window.location.href = `../project/{{name}}?variant={{selected_variant}}&schematic=${next}`
+                break;
+
+                case 40: // down
+                next = {{ selected_schematic }} + 1
+                if (next >= {{ schematics|length }})
+                    break;
+                window.location.href = `../project/{{name}}?variant={{selected_variant}}&schematic=${next}`
+                break;
+
+                default: return;
+            }
+            e.preventDefault();
+        };
+
+        function getSchematic(name)
+        {
+            let url = `/schematic/{{name}}/${name}`;
+            $.getJSON(url, data => renderSchematic(name, data)); 
+        }
+
+        function renderSchematic(schematic_name, data)
+        {
+            let area = document.getElementById("main-area");
+            area.innerHTML = "";
+            let render_area = SVG().addTo('#main-area').size(area.offsetWidth, area.offsetHeight)
+            render_area.width = area.offsetWidth
+            render_area.height = area.offsetHeight
+            let altiumDocument = new AltiumDocument(data);
+            // Remap images to backend
+            let images = altiumDocument.objects.filter((o) => o instanceof AltiumImage)
+            for (let image of images)
+            {
+                let uid = btoa(image.filename)
+                image.filename = `/image/{{name}}/${schematic_name}/${uid}.bmp`
+            }
+
+            let renderer = new AltiumSchematicRenderer(render_area, altiumDocument);
+            renderer.render();
+            window.altiumDocument = altiumDocument;
+            window.renderer = renderer;
+            shape = document.getElementsByTagName("svg")[0];
+            initMovement(shape);
+        }
+    </script>
+  </body>
+</html>
