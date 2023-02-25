@@ -1,18 +1,29 @@
 import olefile
 import zlib
+import logging
 
 
 class Schematic:
     def __init__(self) -> None:
         self._position = 0
+        self.name = "Unknown"
 
-    def read(self, filepath) -> 'Schematic':
+    def __str__(self) -> str:
+        return f"Schematic<{self.name}>"
+
+    def __repr__(self) -> str:
+        return f"Schematic<{self.name}>"
+
+    def read(self, filepath: str) -> 'Schematic':
         with open(filepath, "rb") as datastream:
             ole = olefile.OleFileIO(datastream)
-            raw_content = ole.openstream("FileHeader").read()
-            raw_storage = ole.openstream("Storage").read()
-            self.records = self.read_records(raw_content)
-            self.storage = self.read_storage(raw_storage)
+            self.raw_content = ole.openstream("FileHeader").read()
+            self.raw_storage = ole.openstream("Storage").read()
+            self.raw_additional = ole.openstream("Additional").read()
+            self.records = self.read_records(self.raw_content)
+            self.records += self.read_records(self.raw_additional)
+            self.storage = self.read_storage(self.raw_storage)
+            self.name = filepath.split("/")[-1].upper()
         return self
     
     def read_records(self, data):
@@ -42,9 +53,12 @@ class Schematic:
         images = {}
         while not streamer.eof():
             streamer.read_int(2)  # payload size; not used
-            assert streamer.read_int(1) == 0, "Bad pad"
-            assert streamer.read_int(1) == 1, "Bad type"
-            assert streamer.read_int(1) == 0xd0, "Bad magic"
+            if streamer.read_int(1) == 0:
+                logging.warning("Bad padding found!")
+            if streamer.read_int(1) == 1:
+                logging.warning("Bad type found!")
+            if streamer.read_int(1) == 0xd0:
+                logging.warning("Bad magic value found!")
             filename_length = streamer.read_int(1)
             filename = streamer.read(filename_length)
             compressed_size = streamer.read_int(4)
@@ -70,5 +84,6 @@ class DataStreamer:
 
 
 if __name__ == "__main__":
-    s = Schematic().read("nRF52-Quadcopter/pca20017_mcu.SchDoc")
+    logging.basicConfig(level=logging.INFO)
+    s = Schematic().read("designs/ZooidReceiver/ZRRadio.SchDoc")
     print(s.storage.keys())

@@ -43,6 +43,10 @@ ul {
     width: 100%;
 }
 
+li {
+    cursor: pointer;
+}
+
 .nav > ul {
     font-weight: bold;
     padding: 0;

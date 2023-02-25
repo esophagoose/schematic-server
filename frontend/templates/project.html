@@ -23,28 +23,22 @@
                 <button>←</button>
                 <h1>{{ name }}</h1>
             </div>
-            <div class="two-button flex">
-                <div>SCH</div>
-                <div>BOM</div>
-            </div>
         </div>
     </header>
     <content>
         <nav>
             <div class="nav">
-                <ul>
+                <ul >
                     <p>Variants</p>
                     {% for v in variants %}
-                        <li class="{{'selected' if loop.index0 == selected_variant }}">░  {{ v }}</li>
+                        <li class="variant selected">░  {{ v }}</li>
                     {% endfor %}
                 </ul>
                 <ul>
                     <p>Schematics</p>
                     {% for sch in schematics %}
-                        <li class="{{'selected' if loop.index0 == selected_schematic }}">
-                            <a href="#", onclick="getSchematic('{{sch.name}}')">
-                                ▩  {{ sch.name }}
-                            </a>
+                        <li id="{{ sch.name }}" class="schematic" onclick="getSchematic('{{sch.name}}')">
+                            ▩  {{ sch.name }}
                         </li>
                     {% endfor %}
                 </ul>
@@ -77,6 +71,10 @@
         function getSchematic(name)
         {
             let url = `/schematic/{{name}}/${name}`;
+            $('li.schematic').each(function(){
+                $("li.schematic").removeClass("selected");
+                $(`li#${name}`).addClass("selected");
+            });
             $.getJSON(url, data => renderSchematic(name, data)); 
         }
 
@@ -103,6 +101,8 @@
             shape = document.getElementsByTagName("svg")[0];
             initMovement(shape);
         }
+
+        getSchematic("{{ schematics[0].name }}")
     </script>
   </body>
 </html>
