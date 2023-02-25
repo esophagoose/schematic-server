@@ -47,6 +47,19 @@ li {
     cursor: pointer;
 }
 
+li.project-item {
+    background-color: #424646;
+    border-radius: 12px;
+    font-size: 1.5em;
+    margin-bottom: 32px;
+    padding: 25px 30px;
+    width: 80%;
+}
+
+li.project-item:hover {
+    background: #65805F;
+}
+
 .nav > ul {
     font-weight: bold;
     padding: 0;

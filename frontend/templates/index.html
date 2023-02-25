@@ -4,46 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>OpenSchematicViewer</title>
+    <title>Schematic Server</title>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
     <header>
-        <div class="inner-header">
-            <button>←</button>
-            <h1>OpenSchematicViewer</h1>
+        <div class="inner-header flex">
+            <div class="flex">
+                <button>←</button>
+                <h1>Schematic Server</h1>
+            </div>
         </div>
     </header>
     <content>
-        <ul>
-            <li class="grouping">
-                <h3>░  Block 1</h3>
-                <ul>
-                    <li class="board">Sample Board 1</li>
-                    <li class="board">Sample Board 2</li>
-                    <li class="board">Sample Board 3</li>
-                    <li class="board">Sample Board 4</li>
+        <nav>
+            <div class="nav">
+                <ul >
+                    <p>Search</p>
+                    {% for v in variants %}
+                        <li class="variant selected">░  {{ v }}</li>
+                    {% endfor %}
                 </ul>
-            </li>
-            <li class="grouping">
-                <h3>░  Block 2</h3>
                 <ul>
-                    <li class="board">Sample Board 1</li>
-                    <li class="board">Sample Board 2</li>
-                    <li class="board">Sample Board 3</li>
-                    <li class="board">Sample Board 4</li>
+                    <p>Settings</p>
+                    {% for sch in schematics %}
+                        <li id="{{ sch.name }}" class="schematic" onclick="getSchematic('{{sch.name}}')">
+                            ▩  {{ sch.name }}
+                        </li>
+                    {% endfor %}
                 </ul>
-            </li>
-            <li class="grouping">
-                <h3>░  Block 3</h3>
-                <ul>
-                    <li class="board">Sample Board 1</li>
-                    <li class="board">Sample Board 2</li>
-                    <li class="board">Sample Board 3</li>
-                    <li class="board">Sample Board 4</li>
-                </ul>
-            </li>
-        </ul>
+            </div>
+        </nav>
+        <main id="main-area">
+            <ul >
+                {% for name in structure %}
+                    <li class="project-item" onclick="goToProject('{{name}}')">{{ name }}</li>
+                {% endfor %}
+            </ul>
+        </main>
     </content>
-  </body>
+	<script type="text/javascript">
+        function goToProject(name)
+        {
+            window.location.href = `/project/${name}`
+        }
+    </script>
+</body>
 </html>

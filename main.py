@@ -61,11 +61,7 @@ def image(name, schematic: str, image_b64: str):
 
 @app.route("/")
 def main():
-    structure = {
-        'FPGA1394': './FPGA1394/FPGA.PrjPCB'
-    }
-
-    return render_template("index.html", structure=structure);
+    return render_template("index.html", structure=Project(f"designs").get_projects().keys());
     # for root, dirs, files in os.walk(root_folder):
     #     for file in files:
     #         if not file.endswith(".PrjPCB") and not dirs:

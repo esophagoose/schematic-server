@@ -15,7 +15,6 @@ class ProjectFile:
     exists: bool
     path: str
 
-
 class Project:
     def __init__(self, root_folder) -> None:
         self.root = root_folder
@@ -27,6 +26,13 @@ class Project:
             filepath = glob.glob(f"{self.root}/*.PrjPCB")[0]
         logging.info(f"Reading project file: {filepath}")
         self.parser.read(filepath, encoding="latin1")
+
+    def get_projects(self):
+        projects = {}
+        for p in glob.glob(f"{self.root}/*/", recursive=True):
+            folders = [i for i in p.split("/") if i]
+            projects[folders[-1]] = p
+        return projects
 
     def get_schematics(self):
         schematics = []
