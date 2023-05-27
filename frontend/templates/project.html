@@ -86,6 +86,7 @@
             render_area.width = area.offsetWidth
             render_area.height = area.offsetHeight
             let altiumDocument = new AltiumDocument(data);
+            window.altiumDocument = altiumDocument;
             // Remap images to backend
             let images = altiumDocument.objects.filter((o) => o instanceof AltiumImage)
             for (let image of images)
@@ -96,7 +97,6 @@
 
             let renderer = new AltiumSchematicRenderer(render_area, altiumDocument);
             renderer.render();
-            window.altiumDocument = altiumDocument;
             window.renderer = renderer;
             shape = document.getElementsByTagName("svg")[0];
             initMovement(shape);

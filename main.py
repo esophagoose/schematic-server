@@ -42,6 +42,6 @@ def image(name, schematic: str, image_b64: str):
 
 @app.route("/")
 def main():
-    projects = BACKEND.get_projects().keys()
+    projects = BACKEND.projects.keys()
     return render_template("index.html", structure=projects);
 
