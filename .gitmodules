@@ -1,0 +1,3 @@
+[submodule "static/schdoc.js"]
+	path = static/schdoc.js
+	url = https://github.com/esophagoose/schdoc.js
