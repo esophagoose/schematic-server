@@ -18,18 +18,27 @@ class ProjectFile:
 
 class Project:
     def __init__(self, root_folder) -> None:
+        self.ready = False
         self.root = Path(root_folder)
         self.parser = configparser.ConfigParser()
         self.schematics: Dict[str, Schematic] = {}
+        project_paths = [p for p in os.listdir(self.root) if p.lower().endswith(".prjpcb")]
+        if len(project_paths) == 0:
+            raise FileNotFoundError(f"No project found in directory: {self.root}")
+        self.path = project_paths[0]
     
     def read(self) -> None:
-        filepath = [p for p in os.listdir(self.root) if p.lower().endswith(".prjpcb")][0]
-        full_path = self.root / Path(filepath)
+        full_path = self.root / Path(self.path)
         logging.info(f"Reading project file: {full_path}")
-        self.parser.read(full_path, encoding="latin1")
+        with open(full_path, "r", encoding="latin1", errors="ignore") as f:
+            content = f.read()
+            self.parser.read_string(content)
+            self.ready = True
         return self
 
     def get_schematics(self):
+        if not self.ready:
+            self.read()
         schematics = []
         for key, value in self.parser.items():
             if "Document" not in key:
@@ -42,9 +51,13 @@ class Project:
         return schematics
     
     def get_variants(self):
+        if not self.ready:
+            self.read()
         return ["[No Variation]"]
 
     def get_schematic_json(self, path: str) -> Schematic:
+        if not self.ready:
+            self.read()
         filepath = f"{self.root}/{path}.SchDoc"
         self.schematics[path] = Schematic().read(filepath)
         return self.schematics[path]

@@ -15,7 +15,11 @@ class Backend:
         self._projects.clear()
         for p in glob.glob(f"{self.root}/*/", recursive=True):
             folders = [i for i in p.split("/") if i]
-            self._projects[folders[-1]] = pp.Project(p).read()
+            project_folder = folders[-1]
+            try:
+                self._projects[project_folder] = pp.Project(p)
+            except FileNotFoundError as e:
+                print(e)
         return self._projects
     
     def _should_refresh_projects(self):
