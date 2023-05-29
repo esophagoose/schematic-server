@@ -47,26 +47,7 @@
         <main id="main-area" />
     </content>
 	<script type="text/javascript">
-        document.onkeydown = function(e) {
-            // switch(e.which) {
-            //     case 38: // up
-            //     next = {{ selected_schematic }} - 1
-            //     if (next < 0)
-            //         break
-            //     window.location.href = `../project/{{name}}?variant={{selected_variant}}&schematic=${next}`
-            //     break;
-
-            //     case 40: // down
-            //     next = {{ selected_schematic }} + 1
-            //     if (next >= {{ schematics|length }})
-            //         break;
-            //     window.location.href = `../project/{{name}}?variant={{selected_variant}}&schematic=${next}`
-            //     break;
-
-            //     default: return;
-            // }
-            e.preventDefault();
-        };
+        document.onkeydown = e => e.preventDefault();
 
         function getSchematic(name)
         {
@@ -75,7 +56,7 @@
                 $("li.schematic").removeClass("selected");
                 $(`li#${name}`).addClass("selected");
             });
-            $.getJSON(url, data => renderSchematic(name, data)); 
+            $.getJSON(url, data => renderSchematic(name, data.result)); 
         }
 
         function renderSchematic(schematic_name, data)

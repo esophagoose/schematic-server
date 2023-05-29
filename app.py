@@ -28,7 +28,8 @@ def project(name):
 
 @app.route("/schematic/<name>/<schematic>")
 def schematic(name, schematic: str):
-    return BACKEND.projects[name].get_schematic_json(schematic).records
+    schematic = BACKEND.projects[name].get_schematic_json(schematic)
+    return {"result": schematic.records}
 
 @app.route("/image/<name>/<schematic>/<image_b64>")
 def image(name, schematic: str, image_b64: str):
