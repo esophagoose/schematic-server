@@ -30,8 +30,8 @@
             <div class="nav">
                 <ul >
                     <p>Variants</p>
-                    {% for v in variants %}
-                        <li class="variant selected">░  {{ v }}</li>
+                    {% for u, v in variants.items() %}
+                        <li id="{{ u }}"class="variant" onclick="setVariant('{{u}}')">░  {{ v }}</li>
                     {% endfor %}
                 </ul>
                 <ul>
@@ -59,6 +59,24 @@
             $.getJSON(url, data => renderSchematic(name, data.result)); 
         }
 
+        function setVariant(uid)
+        {
+            let url = `/variant/{{name}}/${uid}`;
+            $('li.variant').each(function(){
+                $("li.variant").removeClass("selected");
+                $(`li#${uid}`).addClass("selected");
+            });
+            $.getJSON(url, data => {
+                if (Object.keys(data.result).length === 0)
+                    return
+                console.log(data.result)
+                Object.keys(data.result).forEach(key => {
+                    if (Object.keys(data.result[key]).length === 0)
+                        window.renderer.crossOutRefDes(key);
+                });
+            }); 
+        }
+
         function renderSchematic(schematic_name, data)
         {
             let area = document.getElementById("main-area");
@@ -83,6 +101,7 @@
             initMovement(shape);
         }
 
+        setVariant("default")
         getSchematic("{{ schematics[0].name }}")
     </script>
   </body>

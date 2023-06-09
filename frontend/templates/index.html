@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
-  <body>
+  <body style="overflow:auto">
     <header>
         <div class="inner-header flex">
             <div class="flex">
@@ -23,7 +23,7 @@
                 <ul >
                     <p>Search</p>
                     {% for v in variants %}
-                        <li class="variant selected">░  {{ v }}</li>
+                        <li class="variant">░  {{ v }}</li>
                     {% endfor %}
                 </ul>
                 <ul>

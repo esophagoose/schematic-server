@@ -23,13 +23,21 @@ def project(name):
         "project.html",
         name=name,
         schematics=project.get_schematics(),
-        variants=project.get_variants()
+        variants=project.get_variant_names()
     )
 
 @app.route("/schematic/<name>/<schematic>")
 def schematic(name, schematic: str):
     schematic = BACKEND.projects[name].get_schematic_json(schematic)
     return {"result": schematic.records}
+
+@app.route("/variant/<name>/<variant_uid>")
+def variant(name, variant_uid: str):
+    print(variant_uid, BACKEND.projects[name].get_variant_names())
+    vname = BACKEND.projects[name].get_variant_names()[variant_uid]
+    print(vname, BACKEND.projects[name].variants.keys())
+    variant = BACKEND.projects[name].variants[vname]
+    return {"result": variant}
 
 @app.route("/image/<name>/<schematic>/<image_b64>")
 def image(name, schematic: str, image_b64: str):
