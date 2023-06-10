@@ -69,7 +69,6 @@
             $.getJSON(url, data => {
                 if (Object.keys(data.result).length === 0)
                     return
-                console.log(data.result)
                 Object.keys(data.result).forEach(key => {
                     if (Object.keys(data.result[key]).length === 0)
                         window.renderer.crossOutRefDes(key);
