@@ -93,7 +93,7 @@
                 image.filename = `/image/{{name}}/${schematic_name}/${uid}.bmp`
             }
 
-            let renderer = new AltiumSchematicRenderer(render_area, altiumDocument);
+            let renderer = new AltiumSchematicRenderer(window, render_area, altiumDocument);
             renderer.render();
             window.renderer = renderer;
             shape = document.getElementsByTagName("svg")[0];
