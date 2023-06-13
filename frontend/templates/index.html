@@ -11,31 +11,14 @@
   <body style="overflow:auto">
     <header>
         <div class="inner-header flex">
-            <div class="flex">
                 <button>←</button>
                 <h1>Schematic Server</h1>
-            </div>
+                <div style="flex-grow: 2;">
+                    <input type="text" placeholder="Search">
+                </div>
         </div>
     </header>
     <content>
-        <nav>
-            <div class="nav">
-                <ul >
-                    <p>Search</p>
-                    {% for v in variants %}
-                        <li class="variant">░  {{ v }}</li>
-                    {% endfor %}
-                </ul>
-                <ul>
-                    <p>Settings</p>
-                    {% for sch in schematics %}
-                        <li id="{{ sch.name }}" class="schematic" onclick="getSchematic('{{sch.name}}')">
-                            ▩  {{ sch.name }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </nav>
         <main id="main-area">
             <ul >
                 {% for name in structure %}

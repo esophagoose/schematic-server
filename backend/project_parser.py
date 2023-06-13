@@ -8,6 +8,7 @@ import logging
 from typing import Dict
 from backend.schematic import Schematic
 from pathlib import Path
+from collections import OrderedDict
 
 logging.basicConfig(level=logging.DEBUG)
 @dataclass
@@ -20,14 +21,16 @@ class Project:
     def __init__(self, root_folder) -> None:
         self.ready = False
         self.root = Path(root_folder)
-        self.parser = configparser.ConfigParser()
-        self.schematics: Dict[str, Schematic] = {}
+        self.parser = configparser.RawConfigParser()
+        self.schematics: OrderedDict[str, Schematic] = {}
         self.variants = {}
         self.variant_uid_map = {}
-        project_paths = [p for p in os.listdir(self.root) if p.lower().endswith(".prjpcb")]
-        if len(project_paths) == 0:
-            raise FileNotFoundError(f"No project found in directory: {self.root}")
-        self.path = project_paths[0]
+        for filename in os.listdir(self.root):
+            if filename.lower().endswith(".prjpcb"):
+                self.path = filename
+                break
+        if not self.path:
+            raise FileNotFoundError(f"No project file found in: {self.root}")
     
     def read(self) -> None:
         full_path = self.root / Path(self.path)
@@ -41,16 +44,67 @@ class Project:
     def get_schematics(self):
         if not self.ready:
             self.read()
-        schematics = []
+        path, _ = os.path.splitext(self.root / Path(self.path))
+        hierachry = {}
+        if os.path.exists(f"{path}.PrjPcbStructure"):
+            hierachry = self._read_pcb_structure(f"{path}.PrjPcbStructure")
+        return self._get_schematics_from_parser(), hierachry
+
+    def _new_read_pcb_structure(self, path):
+        tree = {}
+        root_nodes = []
+        with open(path, "r") as f:
+            for line in f.readlines():
+                is_root_node = re.search(r"^Record=TopLevelDocument")
+                if is_root_node: # first line in file
+                    schematic_name = re.search(r"FileName=(.*?).SchDoc\|", line).group()[0]
+                    root_node = {
+                        "name": schematic_name,
+                        "children": [],
+                    }
+                    tree[schematic_name] = root_node
+                    root_nodes.append(root_node)
+                else:
+                    parent_file_name, schematic_name = re.search(r"SourceDocument=(.*?).SchDoc\|.*?FileName=(.*?).SchDoc", line).group()
+                    node = {
+                        "name": schematic_name,
+                        "children": [],
+                    }
+                    parent = tree[parent_file_name]
+                    if not parent:
+                        raise RuntimeError("Missing parent node!")
+                    parent['children'].append(node)
+                    tree[node["name"]] = node
+        return root_nodes
+
+    def _read_pcb_structure(self, path):
+        tree = {}
+        structure = []
+        with open(path, "r") as f:
+            for line in f.readlines():
+                if line.startswith("Record=TopLevelDocument"):
+                    schematic_name = re.search(r"FileName=(.*?).SchDoc\|", line).group()[0]
+                    tree[schematic_name] = 1
+                else:
+                    parent_file_name, schematic_name = re.search(r"SourceDocument=(.*?).SchDoc\|.*?FileName=(.*?).SchDoc", line).group()
+                    parent = tree[parent_file_name]
+                    tree[schematic_name] = parent + 1
+        sorted_tree = sorted(tree.items(), key=lambda x: x[1])
+        for name, index in sorted_tree.items():
+            structure.append("  "*index + name)
+        return structure
+
+
+    def _get_schematics_from_parser(self):
         for key, value in self.parser.items():
             if "Document" not in key:
                 continue
-            name, extension = os.path.splitext(value["documentpath"])
+            filepath = value["documentpath"]
+            name, extension = os.path.splitext(filepath)
             if extension != ".SchDoc":
                 continue
-            exists = os.path.exists(self.root / value["documentpath"])
-            schematics.append(ProjectFile(name, exists, value["documentpath"]))
-        return schematics
+            self.schematics[name] = Schematic(filepath)
+        return self.schematics
     
     def get_variants(self):
         ALT_REGEX = r"Designator=([^\|]+).*?AlternatePart=(.*?)"
@@ -100,11 +154,5 @@ class Project:
         if sch.storage.get(path):
             return sch.storage.get(path)
         return sch.storage.get(path.replace("\\\\", "\\"))
-
-
-if __name__ == "__main__":
-    p = Project("designs/Altium P-MT3620RDB-1-0")
-    p.read()
-    print(p.get_schematic_as_base64(p.get_schematics()[0]))
             
 

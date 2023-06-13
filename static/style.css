@@ -103,6 +103,16 @@ content {
     height: 100%;
 }
 
+input {
+    background: #ccc;
+    border: 2px solid #65805F;
+    border-radius: 8px;
+    float: right;
+    font-size: 20px;
+    margin: 10px 20px;
+    padding: 5px 15px;
+}
+
 .sheetsymbol {
     cursor: pointer;
 }

@@ -4,9 +4,10 @@ import logging
 
 
 class Schematic:
-    def __init__(self) -> None:
+    def __init__(self, path: str) -> None:
         self._position = 0
         self.name = "Unknown"
+        self.path = path
 
     def __str__(self) -> str:
         return f"Schematic<{self.name}>"
@@ -14,8 +15,8 @@ class Schematic:
     def __repr__(self) -> str:
         return f"Schematic<{self.name}>"
 
-    def read(self, filepath: str) -> 'Schematic':
-        with open(filepath, "rb") as datastream:
+    def read(self) -> 'Schematic':
+        with open(self.path, "rb") as datastream:
             ole = olefile.OleFileIO(datastream)
             self.raw_content = ole.openstream("FileHeader").read()
             self.raw_storage = ole.openstream("Storage").read()
@@ -23,7 +24,7 @@ class Schematic:
             self.records = self.read_records(self.raw_content)
             self.records += self.read_records(self.raw_additional)
             self.storage = self.read_storage(self.raw_storage)
-            self.name = filepath.split("/")[-1].upper()
+            self.name = self.path.split("/")[-1].upper()
         return self
     
     def read_records(self, data):

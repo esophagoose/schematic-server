@@ -19,10 +19,12 @@ logging.basicConfig(level=logging.INFO)
 @app.route("/project/<name>")
 def project(name):
     project = BACKEND.projects[name]
+    schematics, hierarchy = project.get_schematics()
     return render_template(
         "project.html",
         name=name,
-        schematics=project.get_schematics(),
+        schematics=schematics,
+        hierarchy=hierarchy,
         variants=project.get_variant_names()
     )
 
@@ -33,9 +35,7 @@ def schematic(name, schematic: str):
 
 @app.route("/variant/<name>/<variant_uid>")
 def variant(name, variant_uid: str):
-    print(variant_uid, BACKEND.projects[name].get_variant_names())
     vname = BACKEND.projects[name].get_variant_names()[variant_uid]
-    print(vname, BACKEND.projects[name].variants.keys())
     variant = BACKEND.projects[name].variants[vname]
     return {"result": variant}
 
