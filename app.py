@@ -20,6 +20,7 @@ logging.basicConfig(level=logging.INFO)
 def project(name):
     project = BACKEND.projects[name]
     schematics, hierarchy = project.get_schematics()
+    print(hierarchy)
     return render_template(
         "project.html",
         name=name,

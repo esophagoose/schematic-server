@@ -146,7 +146,7 @@ class Project:
         if not self.ready:
             self.read()
         filepath = f"{self.root}/{path}.SchDoc"
-        self.schematics[path] = Schematic().read(filepath)
+        self.schematics[path] = Schematic(filepath).read()
         return self.schematics[path]
     
     def get_image(self, schematic: str, path: str):

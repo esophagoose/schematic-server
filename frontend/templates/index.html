@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Schematic Server</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
@@ -14,7 +15,7 @@
                 <button>←</button>
                 <h1>Schematic Server</h1>
                 <div style="flex-grow: 2;">
-                    <input type="text" placeholder="Search">
+                    <input id="filter-projects" type="text" placeholder="Search">
                 </div>
         </div>
     </header>
@@ -28,10 +29,21 @@
         </main>
     </content>
 	<script type="text/javascript">
+
         function goToProject(name)
         {
             window.location.href = `/project/${name}`
         }
+
+        $('#filter-projects').keyup(function(e){
+            var searchTerm = $(this).val();
+            $('li.project-item').each(function(){
+                if(!$(this).text().includes(searchTerm))
+                    $(this).hide();
+                else
+                    $(this).show();
+            });
+        });
     </script>
 </body>
 </html>

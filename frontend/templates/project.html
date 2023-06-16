@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>OpenSchematicViewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/base64_binary.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/ole.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/helper_extensions.js') }}"></script>
@@ -31,14 +34,14 @@
                 <ul >
                     <p>Variants</p>
                     {% for u, v in variants.items() %}
-                        <li id="{{ u }}"class="variant" onclick="setVariant('{{u}}')">░  {{ v }}</li>
+                        <li id="{{ u }}" class="variant lvl1" onclick="setVariant('{{u}}')">{{ v }}</li>
                     {% endfor %}
                 </ul>
                 <ul>
                     <p>Schematics</p>
-                    {% for sch in schematics %}
-                        <li id="{{ sch.name }}" class="schematic" onclick="getSchematic('{{sch.name}}')">
-                            ▩  {{ sch.name }}
+                    {% for sch in schematics.keys() %}
+                        <li id="{{ sch }}" class="schematic lvl{{hierarchy.get(sch, 1)}}" onclick="getSchematic('{{sch}}')">
+                            {{ sch }}
                         </li>
                     {% endfor %}
                 </ul>
@@ -101,7 +104,7 @@
         }
 
         setVariant("default")
-        getSchematic("{{ schematics[0].name }}")
+        // getSchematic("{{ schematics }}")
     </script>
   </body>
 </html>
