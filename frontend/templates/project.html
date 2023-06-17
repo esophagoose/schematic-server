@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/base64_binary.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/ole.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/helper_extensions.js') }}"></script>
@@ -24,7 +25,7 @@
         <div class="inner-header flex">
             <div class="flex">
                 <button onclick="window.location.href = '/'">←</button>
-                <h1>{{ name }}</h1>
+                <h1>{{ name.replace('_', ' ') }}</h1>
             </div>
         </div>
     </header>
@@ -40,7 +41,7 @@
                 <ul>
                     <p>Schematics</p>
                     {% for sch in schematics.keys() %}
-                        <li id="{{ sch }}" class="schematic lvl{{hierarchy.get(sch, 1)}}" onclick="getSchematic('{{sch}}')">
+                        <li id="{{ sch }}" class="schematic lvl{{hierarchy.get(sch, 1)}}" onclick="setSchematic('{{sch}}')">
                             {{ sch }}
                         </li>
                     {% endfor %}
@@ -50,16 +51,17 @@
         <main id="main-area" />
     </content>
 	<script type="text/javascript">
+        var selected_schematic = "";
+        var selected_variant = "";
         document.onkeydown = e => e.preventDefault();
 
-        function getSchematic(name)
-        {
-            let url = `/schematic/{{name}}/${name}`;
+        function setSchematic(name) {
             $('li.schematic').each(function(){
                 $("li.schematic").removeClass("selected");
                 $(`li#${name}`).addClass("selected");
             });
-            $.getJSON(url, data => renderSchematic(name, data.result)); 
+            selected_schematic = name;
+            getConfiguraiton()
         }
 
         function setVariant(uid)
@@ -69,17 +71,22 @@
                 $("li.variant").removeClass("selected");
                 $(`li#${uid}`).addClass("selected");
             });
-            $.getJSON(url, data => {
-                if (Object.keys(data.result).length === 0)
-                    return
-                Object.keys(data.result).forEach(key => {
-                    if (Object.keys(data.result[key]).length === 0)
-                        window.renderer.crossOutRefDes(key);
-                });
-            }); 
+            selected_variant = uid;
+            getConfiguraiton()
+        }
+        
+        function getConfiguraiton()
+        {
+            const variant_url = `/variant/{{name}}/${selected_variant}`;
+            const schematic_url = `/schematic/{{name}}/${selected_schematic}`;
+            $.getJSON(variant_url, variant_data => {
+                $.getJSON(schematic_url, data => {
+                    renderSchematic(data.name, variant_data, data.result)
+                }); 
+            });
         }
 
-        function renderSchematic(schematic_name, data)
+        function renderSchematic(schematic_name, variant, data)
         {
             let area = document.getElementById("main-area");
             area.innerHTML = "";
@@ -87,6 +94,7 @@
             render_area.width = area.offsetWidth
             render_area.height = area.offsetHeight
             let altiumDocument = new AltiumDocument(data);
+            altiumDocument.setVariant(variant);
             window.altiumDocument = altiumDocument;
             // Remap images to backend
             let images = altiumDocument.objects.filter((o) => o instanceof AltiumImage)
@@ -104,7 +112,6 @@
         }
 
         setVariant("default")
-        // getSchematic("{{ schematics }}")
     </script>
   </body>
 </html>

@@ -29,10 +29,10 @@ def project(name):
         variants=project.get_variant_names()
     )
 
-@app.route("/schematic/<name>/<schematic>")
-def schematic(name, schematic: str):
-    schematic = BACKEND.projects[name].get_schematic_json(schematic)
-    return {"result": schematic.records}
+@app.route("/schematic/<project>/<name>")
+def schematic(project, name: str):
+    schematic = BACKEND.projects[project].get_schematic_json(name)
+    return {"name": name, "result": schematic.records}
 
 @app.route("/variant/<name>/<variant_uid>")
 def variant(name, variant_uid: str):
