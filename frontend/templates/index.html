@@ -4,31 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Schematic Server</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
+    <title>electrical goose</title>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body style="overflow:auto">
-    <header>
-        <div class="inner-header flex">
-                <button>←</button>
-                <h1>Schematic Server</h1>
-                <div style="flex-grow: 2;">
-                    <input id="filter-projects" type="text" placeholder="Search">
+  <body class="text-zinc-200 bg-zinc-900 flex">
+    <aside class="flex flex-col w-64 h-screen px-5 py-8 border-r rtl:border-r-0 rtl:border-l bg-zinc-200 border-zinc-400">
+        <a href="#" class="flex">
+            <img class="w-auto h-9" src="{{ url_for('static', filename='goose.svg') }}" alt="">
+            <label class="px-3 text-xs text-zinc-600 font-thin">electrical</label>
+        </a>
+
+        <div class="flex flex-col justify-between flex-1 mt-6">
+            <nav class="-mx-3 space-y-2 ">
+                <a class="flex items-center px-3 py-2 text-zinc-600 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" onclick="toggleFavorite()">
+                    <i id="favorite" class="bi-heart"></i>
+                    <span class="mx-2 text-sm font-medium">Favorited</span>
+                </a>
+                <div class="space-y-1 ">
+                    <label class="px-3 text-xs text-zinc-400 uppercase">Folders</label>
+                    <a class="flex items-center px-3 py-2 text-zinc-600 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" id="{{ u }} onclick="setVariant('{{u}}')">
+                        <i class="bi-folder"></i>
+                        <span class="mx-2 text-sm font-medium">Unsorted</span>
+                    </a> 
                 </div>
+                <div class="space-y-2">
+                    <label class="px-3 text-xs text-zinc-400 uppercase">views</label>
+                    <a class="flex items-center px-3 py-2 text-zinc-600 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" id="{{ sch }} onclick="setSchematic('{{sch}}')">
+                        <i class="bi-grid-1x2"></i>
+                        <span class="mx-2 text-sm font-medium">Projects</span>
+                    </a>
+                    <a class="flex items-center px-3 py-2 text-zinc-600 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" id="{{ sch }} onclick="setSchematic('{{sch}}')">
+                        <i class="bi-motherboard"></i>
+                        <span class="mx-2 text-sm font-medium">Components</span>
+                    </a>
+                </div>
+
+                <div class="space-y-3 ">
+                    <label class="px-3 text-xs text-zinc-400 uppercase">Settings</label>
+
+                    <a class="flex items-center px-3 py-2 text-zinc-600 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#">
+                        <i class="bi-gear"></i>
+                        <span class="mx-2 text-sm font-medium">Configuration</span>
+                    </a>
+
+                </div>
+            </nav>
         </div>
-    </header>
-    <content>
-        <main id="main-area">
-            <ul >
-                {% for name in structure %}
-                    <li class="project-item" onclick="goToProject('{{name}}')">{{ name }}</li>
-                {% endfor %}
-            </ul>
-        </main>
-    </content>
+    </aside>
+    <div class="flex-grow">
+        <div class="flex flex-col justify-between items-center p-4 py-8">
+            <input type="text" placeholder="Search for Designs" class="bg-zinc-900 border border-zinc-600 rounded-full text-center px-6 py-1 mr-2">
+        </div>
+        <div class="justify-items-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 rounded text-zinc-800 px-5">
+            {% for name in structure %}
+            <div class="cursor-pointer rounded-lg w-11/12 border border-zinc-400 bg-zinc-200 flex flex-col mb-6" onclick="goToProject('{{ name }}')">
+                <div class="flex-grow">
+                    <h5 class="text-xl font-medium pt-6 px-6 py-4">{{ name }}</h5>
+                    <p class="text-zinc-600 text-md px-6 pb-4">
+                    With supporting text below as a natural lead-in to additional.
+                    </p>
+                </div>
+                <div class="border-t border-zinc-400 px-6 flex justify-between">
+                    <p class="text-xs py-3">Updated: 2 days ago by Goose</p>   
+                    <i class="bi-heart py-2"></i>            
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
 	<script type="text/javascript">
+        function toggleFavorite() {
+            const heart = document.getElementById("favorite");
+            if (heart.classList.contains("bi-heart")) {
+                heart.classList.remove("bi-heart");
+                heart.classList.add("bi-heart-fill");
+                heart.classList.add("text-red-600");
+            } else {
+                heart.classList.remove("bi-heart-fill");
+                heart.classList.remove("text-red-600");
+                heart.classList.add("bi-heart");
+            }
+        }
 
         function goToProject(name)
         {
