@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>OpenSchematicViewer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title>electrical goose</title>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/base64_binary.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/ole.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/helper/helper_extensions.js') }}"></script>
@@ -18,50 +14,79 @@
     <script type="text/javascript" src="{{ url_for('static', filename='schdoc.js/vector_renderer.js') }}"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@latest/dist/svg.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <header>
-        <div class="inner-header flex">
-            <div class="flex">
-                <button onclick="window.location.href = '/'">←</button>
-                <h1>{{ name.replace('_', ' ') }}</h1>
+  <body class="text-zinc-200 bg-zinc-900 flex" onload="setSchematic('{{schematics[0]}}')">
+    <aside class="flex flex-col w-64 h-screen px-5 py-8 overflow-y-auto border-r rtl:border-r-0 rtl:border-l bg-zinc-200 border-zinc-100">
+        <a href="#" class="flex">
+            <img class="w-auto h-9" src="{{ url_for('static', filename='goose.svg') }}" alt="">
+            <div class="flex flex-col">
+                <label class="px-3 text-xs text-zinc-600 font-thin">electrical</label>
+                <label class="px-3 text-xs text-zinc-600 font-thin">{{ name }}</label>
             </div>
-        </div>
-    </header>
-    <content>
-        <nav>
-            <div class="nav">
-                <ul >
-                    <p>Variants</p>
+        </a>
+
+        <div class="flex flex-col justify-between flex-1 mt-6">
+            <nav class="-mx-3 space-y-6 ">
+                <div class="space-y-3 ">
+                    <label class="px-3 text-xs text-zinc-500 uppercase">variants</label>
                     {% for u, v in variants.items() %}
-                        <li id="{{ u }}" class="variant lvl1" onclick="setVariant('{{u}}')">{{ v }}</li>
+                        <a class="flex items-center px-3 py-2 text-zinc-700 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" id="{{ u }} onclick="setVariant('{{u}}')">
+                            <i class="bi-layers"></i>
+                            <span class="mx-2 text-sm font-medium">{{ v }}</span>
+                        </a>
                     {% endfor %}
-                </ul>
-                <ul>
-                    <p>Schematics</p>
-                    {% for sch in schematics.keys() %}
-                        <li id="{{ sch }}" class="schematic lvl{{hierarchy.get(sch, 1)}}" onclick="setSchematic('{{sch}}')">
-                            {{ sch }}
-                        </li>
+                </div>
+                <div class="space-y-2">
+                    <label class="px-3 text-xs text-zinc-500 uppercase">schematics</label>
+                    {% for sch in schematics %}
+                        <a class="flex items-center px-3 py-2 text-zinc-700 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#" id="{{ sch }}" onclick="setSchematic('{{sch}}')">
+                            <div class="h-full border-l-2 border-gray-900"></div>
+                            <i class="bi-file-post"></i>
+                            <span class="mx-2 text-sm font-medium">{{ sch }}</span>
+                        </a>
                     {% endfor %}
-                </ul>
-            </div>
-        </nav>
-        <main id="main-area" />
-    </content>
+                </div>
+
+                <div class="space-y-3 ">
+                    <label class="px-3 text-xs text-zinc-500 uppercase">layout (coming soon)</label>
+
+                    <a class="flex items-center px-3 py-2 text-zinc-700 transition-colors duration-300 transform rounded-lg hover:bg-amber-100 hover:text-zinc-800" href="#">
+                        <i class="bi-motherboard"></i>
+                        <span class="mx-2 text-sm font-medium">{{ name }}</span>
+                    </a>
+
+                </div>
+
+                <div class="space-y-3 ">
+                    <label class="px-3 text-xs text-zinc-500 uppercase">File Generation (coming soon)</label>
+
+                    <a class="flex items-center px-3 py-2 text-zinc-700 transition-colors duration-300 transform rounded-lg hover:bg-gray-800 hover:text-zinc-700" href="#">
+                        <i class="bi-file-text"></i>
+                        <span class="mx-2 text-sm font-medium">Fabrication Drawing</span>
+                    </a>
+
+                    <a class="flex items-center px-3 py-2 text-zinc-700 transition-colors duration-300 transform rounded-lg hover:bg-gray-800 hover:text-zinc-700" href="#">
+                        <i class="bi-file-text"></i>
+                        <span class="mx-2 text-sm font-medium">Assembly Drawing</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </aside>
+    <div id="main-area" class="flex-grow">
+
+    </div>
+
 	<script type="text/javascript">
         var selected_schematic = "";
         var selected_variant = "";
         document.onkeydown = e => e.preventDefault();
 
         function setSchematic(name) {
-            $('li.schematic').each(function(){
-                $("li.schematic").removeClass("selected");
-                $(`li#${name}`).addClass("selected");
-            });
             selected_schematic = name;
-            getConfiguraiton()
+            getConfiguration()
         }
 
         function setVariant(uid)
@@ -72,10 +97,10 @@
                 $(`li#${uid}`).addClass("selected");
             });
             selected_variant = uid;
-            getConfiguraiton()
+            getConfiguration()
         }
         
-        function getConfiguraiton()
+        function getConfiguration()
         {
             const variant_url = `/variant/{{name}}/${selected_variant}`;
             const schematic_url = `/schematic/{{name}}/${selected_schematic}`;

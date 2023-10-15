@@ -16,6 +16,7 @@ app = Flask(__name__, template_folder="frontend/templates/")
 
 logging.basicConfig(level=logging.INFO)
 
+
 @app.route("/project/<name>")
 def project(name):
     project = BACKEND.projects[name]
@@ -24,21 +25,24 @@ def project(name):
     return render_template(
         "project.html",
         name=name,
-        schematics=schematics,
+        schematics=schematics.keys(),
         hierarchy=hierarchy,
         variants=project.get_variant_names()
     )
+
 
 @app.route("/schematic/<project>/<name>")
 def schematic(project, name: str):
     schematic = BACKEND.projects[project].get_schematic_json(name)
     return {"name": name, "result": schematic.records}
 
+
 @app.route("/variant/<name>/<variant_uid>")
 def variant(name, variant_uid: str):
     vname = BACKEND.projects[name].get_variant_names()[variant_uid]
     variant = BACKEND.projects[name].variants[vname]
     return {"result": variant}
+
 
 @app.route("/image/<name>/<schematic>/<image_b64>")
 def image(name, schematic: str, image_b64: str):
@@ -47,11 +51,12 @@ def image(name, schematic: str, image_b64: str):
     image_binary = BACKEND.projects[name].get_image(schematic, path)
     response = flask.make_response(image_binary)
     response.headers.set('Content-Type', 'image/bmp')
-    response.headers.set('Content-Disposition', 'attachment', filename=image_b64)
+    response.headers.set('Content-Disposition',
+                         'attachment', filename=image_b64)
     return response
+
 
 @app.route("/")
 def main():
     projects = BACKEND.projects.keys()
-    return render_template("index.html", structure=projects);
-
+    return render_template("index.html", structure=projects)
